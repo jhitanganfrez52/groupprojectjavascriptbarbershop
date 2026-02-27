@@ -1,0 +1,1 @@
+al momento de crear la bd que sea de tipo utf8mb4_spanish_ci
