@@ -1,10 +1,11 @@
+//src/database.ts
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 if (!process.env.DB_NAME) {
-  throw new Error("❌ Variables de entorno NO cargadas");
+  throw new Error(" Variables de entorno NO cargadas");
 }
 
 const sequelize = new Sequelize({
@@ -16,6 +17,6 @@ const sequelize = new Sequelize({
   logging: false,
 });
 
-console.log("🟢 Sequelize creado");
+console.log(" Instancia sequelize creado");
 
 export default sequelize;

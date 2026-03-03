@@ -12,9 +12,9 @@ Usuario.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    nombre1: DataTypes.STRING,
+    nombre1:{ type: DataTypes.STRING, allowNull: false },
     nombre2: DataTypes.STRING,
-    apellido1: DataTypes.STRING,
+    apellido1: { type: DataTypes.STRING, allowNull: false },
     apellido2: DataTypes.STRING,
     ciUsuario: {
       type: DataTypes.STRING,
