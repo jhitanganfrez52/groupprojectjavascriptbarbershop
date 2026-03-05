@@ -1,0 +1,65 @@
+Pasos para el backend:
+
+instalar sequilize:
+npm install sequelize sqlite3
+para comprobar su correcta instalación:
+npm init -y
+
+instalar express e incluir librería node:
+npm install express sequelize pg pg-hstore dotenv
+npm install -D typescript ts-node-dev @types/node @types/express
+
+instalar typescript y tsx
+npx tsc --init
+npm install -D tsx
+
+inicializar el servidor: 
+npm run dev
+
+Estructura del backend:
+/backend
+	/src
+		database.ts
+		index.ts
+		/models 	*Aquí está el modelo de las tablas que se subirá a postgresql*
+			Caja.ts
+			Disponibilidad.ts
+			Empresa.ts
+			Reserva.ts
+			.....etc
+		/routes		*Aqui estan todos los endpoints del sistema*
+			role.routes.ts
+			usuario.routes.ts
+			....etc
+	.env
+	packager-lock.json
+	package.json
+	tsconfig.json
+
+version de PostgreSQL 16
+crear un nuevo rol postgre.
+
+POST http://localhost:3000/roles
+
+{
+  "nombreRol": "ADMIN"
+}
+crear nuevo usuario con rol definido
+
+para crear clientes... 
+POST http://localhost:3000/usuarios/register
+{
+  "nombre1": "Ana",
+  "apellido1": "Gomez",
+  "ciUsuario": "9876543",
+  "celularUsuario": "71234567",
+  "password": "123"
+}
+
+instalar  multer para guardar el logos y qr de empresa
+npm install multer
+npm install -D @types/multer
+
+instalar brcryp para hashear/incriptar el password 
+npm install bcrypt
+npm install -D @types/bcrypt
