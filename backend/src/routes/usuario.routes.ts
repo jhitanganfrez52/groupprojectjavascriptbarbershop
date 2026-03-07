@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { Usuario } from "../models/Usuario.js";
+import { User } from "../models/User.js";
 import { Role } from "../models/Role.js";
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
    GET /usuarios general
 ===================== */
 router.get("/", async (_req: Request, res: Response) => {
-  const usuarios = await Usuario.findAll();
+  const usuarios = await User.findAll();
   res.json(usuarios);
 });
 
@@ -20,7 +20,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const passwordHash = await bcrypt.hash(req.body.password, 10);
 
-    const usuario = await Usuario.create({
+    const usuario = await User.create({
       ...req.body,
       password: passwordHash,
     });
@@ -40,7 +40,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID inválido" });
     }
 
-    const usuario = await Usuario.findByPk(id);
+    const usuario = await User.findByPk(id);
     if (!usuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -70,7 +70,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID inválido" });
     }
 
-    const usuario = await Usuario.findByPk(id);
+    const usuario = await User.findByPk(id);
     if (!usuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -86,63 +86,66 @@ router.delete("/:id", async (req: Request, res: Response) => {
 /* =====================
    POST register y login para los Clientes nuevos
 ===================== */
+/* =====================
+   POST register y login para los Clientes nuevos
+===================== */
 router.post("/register", async (req: Request, res: Response) => {
   try {
     const {
-      nombre1,
-      apellido1,
-      ciUsuario,
-      celularUsuario,
+      firstName,
+      lastName,
+      ci,
+      phone,
       password,
     } = req.body;
 
     if (!password) {
-      return res.status(400).json({ error: "Contraseña requerida" });
+      return res.status(400).json({ error: "Password required" });
     }
 
     // rol cliente fijo
     const rolCliente = await Role.findOne({
-      where: { nombreRol: "CLIENTE" },/// esto varia dependiendo a como se
+      where: { name: "EMPLOYEE" },
     });
 
     if (!rolCliente) {
-      return res.status(500).json({ error: "Rol cliente no existe" });
+      return res.status(500).json({ error: "Client role does not exist" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const usuario = await Usuario.create({
-      nombre1,
-      apellido1,
-      ciUsuario,
-      celularUsuario,
+    const usuario = await User.create({
+      firstName,
+      lastName,
+      ci,
+      phone,
       password: passwordHash,
-      Roles_idRoles: rolCliente.getDataValue("idRoles"),
+      roleId: rolCliente.getDataValue("idRole"),
     });
 
     res.status(201).json({
-      message: "Cliente registrado",
+      message: "Client registered",
       usuario: {
-        id: usuario.getDataValue("idUsuarios"),
-        nombre1: usuario.getDataValue("nombre1"),
+        id: usuario.getDataValue("idUser"),
+        firstName: usuario.getDataValue("firstName"),
       },
     });
   } catch (error) {
-    res.status(400).json({ error: "Error en registro" });
+    res.status(400).json({ error: "Register error" });
   }
 });
 
 
 router.post("/login", async (req: Request, res: Response) => {
   try {
-    const { ciUsuario, password } = req.body;
+    const { ci, password } = req.body;
 
-    const usuario = await Usuario.findOne({
-      where: { ciUsuario },
+    const usuario = await User.findOne({
+      where: { ci },
     });
 
     if (!usuario) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(
@@ -151,20 +154,53 @@ router.post("/login", async (req: Request, res: Response) => {
     );
 
     if (!match) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     res.json({
-      message: "Login correcto",
+      message: "Login successful",
       usuario: {
-        id: usuario.getDataValue("idUsuarios"),
-        nombre1: usuario.getDataValue("nombre1"),
-        rol: usuario.getDataValue("Roles_idRoles"),
+        id: usuario.getDataValue("idUser"),
+        firstName: usuario.getDataValue("firstName"),
+        role: usuario.getDataValue("roleId"),
       },
     });
   } catch (error) {
-    res.status(500).json({ error: "Error en login" });
+    res.status(500).json({ error: "Login error" });
   }
 });
+router.post("/login", async (req: Request, res: Response) => {
+  try {
+    const { ci, password } = req.body;
 
+    const usuario = await User.findOne({
+      where: { ci },
+    });
+
+    if (!usuario) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const match = await bcrypt.compare(
+      password,
+      usuario.getDataValue("password")
+    );
+
+    if (!match) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    res.json({
+      message: "Login successful",
+      usuario: {
+        id: usuario.getDataValue("idUser"),
+        firstName: usuario.getDataValue("firstName"),
+        role: usuario.getDataValue("roleId"),
+      },
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: "Login error" });
+  }
+});
 export default router;

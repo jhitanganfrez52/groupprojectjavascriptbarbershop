@@ -7,12 +7,12 @@ import path from "path";
 
 // modelos (para relaciones)
 import "./models/Role.js";
-import "./models/Usuario.js";
-import "./models/Disponibilidad.js";
-import "./models/Servicio.js";
-import "./models/Reserva.js";
-import "./models/Caja.js";
-import "./models/Empresa.js";
+import "./models/User.js";
+import "./models/Availability.js";
+import "./models/Service.js";
+import "./models/Reservation.js";
+import "./models/CashRegister.js";
+import "./models/Company.js";
 
 // rutas
 import roleRoutes from "./routes/role.routes.js";

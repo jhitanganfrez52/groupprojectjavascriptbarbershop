@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { Caja } from "../models/Caja.js";
+import { CashRegister } from "../models/CashRegister.js";
 
 const router = Router();
 
@@ -8,7 +8,7 @@ const router = Router();
 ===================== */
 router.get("/", async (_req: Request, res: Response) => {
   try {
-    const registros = await Caja.findAll();
+    const registros = await CashRegister.findAll();
     res.json(registros);
   } catch (error) {
     res.status(500).json({ error: "Error al listar caja" });
@@ -25,7 +25,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     return res.status(400).json({ msg: "ID inválido" });
   }
 
-  const registro = await Caja.findByPk(id);
+  const registro = await CashRegister.findByPk(id);
 
   if (!registro) {
     return res.status(404).json({ msg: "Registro no encontrado" });
@@ -39,7 +39,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 ===================== */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const nuevo = await Caja.create(req.body);
+    const nuevo = await CashRegister.create(req.body);
     res.status(201).json(nuevo);
   } catch (error) {
     res.status(400).json({ error: "Error al crear registro" });
@@ -56,7 +56,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     return res.status(400).json({ msg: "ID inválido" });
   }
 
-  const registro = await Caja.findByPk(id);
+  const registro = await CashRegister.findByPk(id);
 
   if (!registro) {
     return res.status(404).json({ msg: "Registro no encontrado" });
@@ -76,7 +76,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     return res.status(400).json({ msg: "ID inválido" });
   }
 
-  const registro = await Caja.findByPk(id);
+  const registro = await CashRegister.findByPk(id);
 
   if (!registro) {
     return res.status(404).json({ msg: "Registro no encontrado" });

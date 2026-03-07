@@ -63,3 +63,7 @@ npm install -D @types/multer
 instalar brcryp para hashear/incriptar el password 
 npm install bcrypt
 npm install -D @types/bcrypt
+
+cors para la conectividad de puertos
+npm install cors
+npm install -D @types/cors

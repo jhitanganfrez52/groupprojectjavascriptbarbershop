@@ -4,7 +4,7 @@ import axios from "axios";
 const API_URL = "http://localhost:3000";
 
 function Login() {
-  const [ciUsuario, setCiUsuario] = useState("");
+  const [ci, setCiUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ function Login() {
       const response = await axios.post(
         `${API_URL}/usuarios/login`,
         {
-          ciUsuario,
+          ci,
           password,
         }
       );
@@ -50,7 +50,7 @@ function Login() {
           <label>CI:</label>
           <input
             type="text"
-            value={ciUsuario}
+            value={ci}
             onChange={(e) => setCiUsuario(e.target.value)}
           />
         </div>

@@ -1,26 +1,35 @@
 // src/models/Role.ts
-import { DataTypes, Model } from "sequelize";
-//Model: se define la clase y se guarda el modelo como...... sequelize.models.Role
-import sequelize from "../database.js";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  HasMany
+} from "sequelize-typescript";
 
-export class Role extends Model {}
+import { User } from "./User.js";
 
-Role.init(
-  {
-    idRoles: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    nombreRol: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      unique: true,
-    },
-  },
-  {
-    sequelize,
-    tableName: "roles",
-    timestamps: false,
-  }
-);
+@Table({
+  tableName: "roles",
+  timestamps: false,
+})
+export class Role extends Model {
+
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  idRole!: number;
+
+  @Column({
+    type: DataType.STRING(20),
+    allowNull: false,
+    unique: true,
+  })
+  name!: string;
+
+  // relación con usuarios
+  @HasMany(() => User)
+  users!: User[];
+}

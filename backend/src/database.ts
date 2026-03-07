@@ -1,11 +1,15 @@
-//src/database.ts
-import { Sequelize } from "sequelize";
+// src/database.ts
+import { Sequelize } from "sequelize-typescript";
 import dotenv from "dotenv";
 
+// modelos
+import { CashRegister } from "./models/CashRegister.js";
+import { Role} from "./models/Role.js";
+import { User } from "./models/User.js";
 dotenv.config();
 
 if (!process.env.DB_NAME) {
-  throw new Error(" Variables de entorno NO cargadas");
+  throw new Error("Variables de entorno NO cargadas");
 }
 
 const sequelize = new Sequelize({
@@ -15,8 +19,11 @@ const sequelize = new Sequelize({
   host: process.env.DB_HOST,
   dialect: "postgres",
   logging: false,
+
+  // aquí registras los modelos
+  models: [CashRegister, Role,User],
 });
 
-console.log(" Instancia sequelize creado");
+console.log("Instancia Sequelize creada");
 
 export default sequelize;

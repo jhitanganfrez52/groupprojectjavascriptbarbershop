@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { Disponibilidad } from "../models/Disponibilidad.js";
+import { Availability } from "../models/Availability.js";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const { empleado_id, fecha, horaInicio, horaFin } = req.body;
 
-    const disponibilidad = await Disponibilidad.create({
+    const disponibilidad = await Availability.create({
       empleado_id,
       fecha,
       horaInicio,
@@ -30,7 +30,7 @@ router.post("/", async (req: Request, res: Response) => {
 ===================== */
 router.get("/", async (_req: Request, res: Response) => {
   try {
-    const disponibilidades = await Disponibilidad.findAll();
+    const disponibilidades = await Availability.findAll();
     res.json(disponibilidades);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener disponibilidades" });
@@ -45,7 +45,7 @@ router.get("/empleado/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const disponibilidades = await Disponibilidad.findAll({
+    const disponibilidades = await Availability.findAll({
       where: { empleado_id: id },
     });
 
@@ -67,7 +67,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "ID inválido" });
     }
 
-    const disponibilidad = await Disponibilidad.findByPk(id);
+    const disponibilidad = await Availability.findByPk(id);
 
     if (!disponibilidad) {
       return res.status(404).json({ error: "Disponibilidad no encontrada" });
@@ -91,7 +91,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "ID inválido" });
     }
 
-    const disponibilidad = await Disponibilidad.findByPk(id);
+    const disponibilidad = await Availability.findByPk(id);
 
     if (!disponibilidad) {
       return res.status(404).json({ error: "Disponibilidad no encontrada" });

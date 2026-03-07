@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import { Reserva } from "../models/Reserva.js";
-import { Usuario } from "../models/Usuario.js";
-import { Servicio } from "../models/Servicio.js";
-import { Disponibilidad } from "../models/Disponibilidad.js";
+import { Reservation } from "../models/Reservation.js";
+import { User } from "../models/User.js";
+import { Service } from "../models/Service.js";
+import { Availability } from "../models/Availability.js";
 
 const router = Router();
 
@@ -10,8 +10,8 @@ const router = Router();
    GET /reservas
 ===================== */
 router.get("/", async (_req: Request, res: Response) => {
-  const reservas = await Reserva.findAll({
-    include: [Usuario, Disponibilidad, Servicio],
+  const reservas = await Reservation.findAll({
+    include: [User, Availability, Service],
   });
   res.json(reservas);
 });
@@ -23,8 +23,8 @@ router.get("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ msg: "ID inválido" });
 
-  const reserva = await Reserva.findByPk(id, {
-    include: [Usuario, Disponibilidad, Servicio],
+  const reserva = await Reservation.findByPk(id, {
+    include: [User, Availability, Service],
   });
 
   if (!reserva) {
@@ -48,7 +48,7 @@ router.post("/", async (req: Request, res: Response) => {
       servicios, // array de IDs
     } = req.body;
 
-    const reserva = await Reserva.create({
+    const reserva = await Reservation.create({
       cliente_id,
       disponibilidad_id,
       horaInicio,
@@ -58,7 +58,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     // asociar servicios
     if (servicios && servicios.length > 0) {
-      await reserva.setServicios(servicios);
+      await reserva.$set("services", servicios);
     }
 
     res.status(201).json(reserva);
@@ -74,7 +74,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ msg: "ID inválido" });
 
-  const reserva = await Reserva.findByPk(id);
+  const reserva = await Reservation.findByPk(id);
   if (!reserva) {
     return res.status(404).json({ msg: "Reserva no encontrada" });
   }
@@ -84,7 +84,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   await reserva.update(data);
 
   if (servicios) {
-    await reserva.setServicios(servicios);
+   await reserva.$set("services", servicios);
   }
 
   res.json(reserva);
@@ -97,7 +97,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ msg: "ID inválido" });
 
-  const reserva = await Reserva.findByPk(id);
+  const reserva = await Reservation.findByPk(id);
   if (!reserva) {
     return res.status(404).json({ msg: "Reserva no encontrada" });
   }

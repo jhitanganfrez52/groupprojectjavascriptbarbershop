@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import { Empresa } from "../models/Empresa.js";
+import { Company } from "../models/Company.js";
 
 const router = Router();
 
@@ -44,11 +44,11 @@ router.post(
         ? `/uploads/empresa/qr/${files.imageQr[0].filename}`
         : null;
 
-      const empresa = await Empresa.create({
-        nombreEmpresa: req.body.nombre,
-        imageLogo: logoPath,
-        imageQR: qrPath,
-      });
+   const empresa = await Company.create({
+  companyName: req.body.companyName,
+  logoImage: logoPath,
+  qrImage: qrPath,
+});
 
       res.status(201).json(empresa);
     } catch (error) {
@@ -63,7 +63,7 @@ router.post(
 
 router.get("/", async (_req: Request, res: Response) => {
   try {
-    const empresa = await Empresa.findOne();
+    const empresa = await Company.findOne();
     res.json(empresa);
   } catch (error) {
     res.status(500).json({ error });
@@ -86,43 +86,42 @@ router.put(
         return res.status(400).json({ message: "ID inválido" });
       }
 
-      const empresa = await Empresa.findByPk(id);
+      const empresa = await Company.findByPk(id);
       if (!empresa) return res.status(404).json({ message: "Empresa no encontrada" });
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       // Actualizar logo
       if (files?.imageLogo) {
-        if (empresa.imageLogo) {
+        if (empresa.logoImage) {
           const oldPath = path.join(
             process.cwd(),
             "src",
-            empresa.imageLogo.replace("/uploads/", "uploads/")
+            empresa.logoImage.replace("/uploads/", "uploads/")
           );
           if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
-        empresa.imageLogo = `/uploads/empresa/logo/${files.imageLogo[0].filename}`;
+        empresa.logoImage = `/uploads/empresa/logo/${files.imageLogo[0].filename}`;
       }
 
       // Actualizar QR
       if (files?.imageQr) {
-        if (empresa.imageQR) {
+        if (empresa.logoImage) {
           const oldPath = path.join(
             process.cwd(),
             "src",
-            empresa.imageQR.replace("/uploads/", "uploads/")
+            empresa.logoImage.replace("/uploads/", "uploads/")
           );
           if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
-        empresa.imageQR = `/uploads/empresa/qr/${files.imageQr[0].filename}`;
+        empresa.qrImage = `/uploads/empresa/qr/${files.imageQr[0].filename}`;
       }
 
       // Actualizar datos
-      empresa.nombreEmpresa = req.body.nombreEmpresa ?? empresa.nombreEmpresa;
-      empresa.numeroE = req.body.numeroE ?? empresa.numeroE;
-      empresa.correoE = req.body.correoE ?? empresa.correoE;
-      empresa.direccionE = req.body.direccionE ?? empresa.direccionE;
-
+     empresa.companyName = req.body.companyName ?? empresa.companyName;
+empresa.phoneNumber = req.body.phoneNumber ?? empresa.phoneNumber;
+empresa.email = req.body.email ?? empresa.email;
+empresa.address = req.body.address ?? empresa.address;
       await empresa.save();
 
       res.json(empresa);
