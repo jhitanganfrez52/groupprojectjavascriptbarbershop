@@ -1,11 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
-
-const Register = () => {
-  const [nombre1, setNombre1] = useState("");
-  const [apellido1, setApellido1] = useState("");
-  const [ciUsuario, setCiUsuario] = useState("");
-  const [celularUsuario, setCelularUsuario] = useState("");
+interface RegisterProps {
+  goToHome: () => void;
+}
+const Register = ({ goToHome }: RegisterProps) => {
+  const [firstName, setNombre1] = useState("");
+  const [lastName, setApellido1] = useState("");
+  const [ci, setCiUsuario] = useState("");
+  const [phone, setCelularUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
 
@@ -16,11 +18,11 @@ const Register = () => {
       const response = await axios.post(
         "http://localhost:3000/usuarios/register",
         {
-          nombre1,
-          apellido1,
-          ciUsuario,
-          celularUsuario,
-          password,
+         firstName,
+      lastName,
+      ci,
+      phone,
+      password,
         }
       );
 
@@ -34,6 +36,13 @@ const Register = () => {
 
   return (
     <div>
+      <div>
+      <h2>Login</h2>
+
+      <button onClick={goToHome}>
+        Volver al inicio
+      </button>
+    </div>
       <h2>Registro de Cliente</h2>
 
       <form onSubmit={handleSubmit}>
@@ -41,7 +50,7 @@ const Register = () => {
           <label>Nombre:</label>
           <input
             type="text"
-            value={nombre1}
+            value={firstName}
             onChange={(e) => setNombre1(e.target.value)}
             required
           />
@@ -51,7 +60,7 @@ const Register = () => {
           <label>Apellido:</label>
           <input
             type="text"
-            value={apellido1}
+            value={lastName}
             onChange={(e) => setApellido1(e.target.value)}
             required
           />
@@ -61,7 +70,7 @@ const Register = () => {
           <label>CI:</label>
           <input
             type="text"
-            value={ciUsuario}
+            value={ci}
             onChange={(e) => setCiUsuario(e.target.value)}
             required
           />
@@ -71,7 +80,7 @@ const Register = () => {
           <label>Celular:</label>
           <input
             type="text"
-            value={celularUsuario}
+            value={phone}
             onChange={(e) => setCelularUsuario(e.target.value)}
             required
           />

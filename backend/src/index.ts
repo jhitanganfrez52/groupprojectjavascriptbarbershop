@@ -16,8 +16,9 @@ import "./models/Company.js";
 
 // rutas
 import roleRoutes from "./routes/role.routes.js";
-import usuarioRoutes from "./routes/usuario.routes.js";
-import empresaRoutes from "./routes/empresa.routes.js";
+import usuarioRoutes from "./routes/user.routes.js"; // clientes
+import usuarioAdRoutes from "./routes/userAd.routes.js"; // admin / cajero
+import empresaRoutes from "./routes/company.routes.js";
 
 dotenv.config();
 
@@ -44,25 +45,37 @@ app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 /* ======================
    RUTAS
 ====================== */
-app.use("/roles", roleRoutes);
+
+// clientes
 app.use("/usuarios", usuarioRoutes);
+
+// admin / cajeros
+app.use("/admin/usuarios", usuarioAdRoutes);
+
+// roles
+app.use("/roles", roleRoutes);
+
+// empresas
 app.use("/empresas", empresaRoutes);
 
 /* ======================
    SERVER
 ====================== */
+
+const PORT = process.env.PORT || 3000;
+
 async function start() {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
 
-    console.log(" PostgreSQL conectado");
+    console.log("✅ PostgreSQL conectado");
 
-    app.listen(process.env.PORT, () => {
-      console.log(` API en http://localhost:${process.env.PORT}`);
+    app.listen(PORT, () => {
+      console.log(`🚀 API en http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error(" Error al iniciar el servidor:", error);
+    console.error("❌ Error al iniciar el servidor:", error);
   }
 }
 

@@ -2,8 +2,18 @@ import { useState } from "react";
 import axios from "axios";
 
 const API_URL = "http://localhost:3000";
-
-function Login() {
+interface LoginProps {
+  goToHome: () => void;
+  goToAdmin: () => void;
+  goToEmployee: () => void;
+  goToClient: () => void;
+  goToCashier: () => void;
+}
+function Login({ goToHome, goToAdmin,
+  goToEmployee,
+  goToClient,
+  goToCashier,}: LoginProps) {
+  
   const [ci, setCiUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,17 +25,29 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API_URL}/usuarios/login`,
-        {
-          ci,
-          password,
-        }
-      );
+     const response = await axios.post(`${API_URL}/usuarios/login`, {
+  ci,
+  password,
+});
 
-      console.log("LOGIN OK:", response.data);
-      alert("Login correcto");
+const token = response.data.token;
+const role = response.data.usuario.role;
 
+      // guardar token
+localStorage.setItem("token", token);
+
+alert("Login correcto");
+
+// redirección por rol
+if (role === 1) {
+  goToAdmin();
+} else if (role === 2) {
+  goToEmployee();
+} else if (role === 3) {
+  goToClient();
+} else if (role === 4) {
+  goToCashier();
+}
       // aquí luego puedes guardar usuario en estado o localStorage
     } catch (err: any) {
       console.error("ERROR LOGIN:", err.response?.data);
@@ -43,6 +65,13 @@ function Login() {
 
   return (
     <div>
+      <div>
+      <h2>Login</h2>
+
+      <button onClick={goToHome}>
+        Volver al inicio
+      </button>
+    </div>
       <h2>Iniciar sesión</h2>
 
       <form onSubmit={handleSubmit}>

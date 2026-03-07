@@ -38,24 +38,19 @@ Estructura del backend:
 
 version de PostgreSQL 16
 crear un nuevo rol postgre.
-
 POST http://localhost:3000/roles
-
 {
-  "nombreRol": "ADMIN"
-}
-crear nuevo usuario con rol definido
-
-para crear clientes... 
-POST http://localhost:3000/usuarios/register
-{
-  "nombre1": "Ana",
-  "apellido1": "Gomez",
-  "ciUsuario": "9876543",
-  "celularUsuario": "71234567",
-  "password": "123"
+  "name": "CASHIER"
 }
 
+http://localhost:3000/usuarios/register
+{
+  "firstName": "George",
+  "lastName": "Alvarez",
+  "ci": "987655",
+  "phone": "712343",
+  "password": "Cliente123"
+}
 instalar  multer para guardar el logos y qr de empresa
 npm install multer
 npm install -D @types/multer
@@ -67,3 +62,7 @@ npm install -D @types/bcrypt
 cors para la conectividad de puertos
 npm install cors
 npm install -D @types/cors
+
+para agregar decoradores en las tabals sequelize.
+npm install sequelize sequelize-typescript mysql2
+npm install -D @types/node
