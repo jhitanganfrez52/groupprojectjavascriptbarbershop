@@ -9,7 +9,6 @@ import {
 
 import { Service } from "./Service.js";
 import { User } from "./User.js";
-
 @Table({
   tableName: "service_employees",
   timestamps: false,
@@ -17,10 +16,16 @@ import { User } from "./User.js";
 export class ServiceEmployee extends Model {
 
   @ForeignKey(() => Service)
-  @Column(DataType.INTEGER)
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+  })
   serviceId!: number;
 
   @ForeignKey(() => User)
-  @Column(DataType.INTEGER)
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+  })
   employeeId!: number;
 }

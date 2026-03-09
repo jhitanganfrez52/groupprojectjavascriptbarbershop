@@ -19,13 +19,15 @@ import roleRoutes from "./routes/role.routes.js";
 import usuarioRoutes from "./routes/user.routes.js"; // clientes
 import usuarioAdRoutes from "./routes/userAd.routes.js"; // admin / cajero
 import empresaRoutes from "./routes/company.routes.js";
-
+import availableRoutes from "./routes/availability.routes.js"
+import serviceRoutes from "./routes/services/serviceEmployee.routes.js";
+import serviceAdmRoutes from "./routes/services/serviceAd.routes.js";
 dotenv.config();
 
 const app = express();
 
 /* ======================
-   MIDDLEWARES
+   MIDDLEWARES/
 ====================== */
 
 // CORS (frontend Vite)
@@ -57,6 +59,10 @@ app.use("/roles", roleRoutes);
 
 // empresas
 app.use("/empresas", empresaRoutes);
+app.use("/disponibilidad",availableRoutes)
+//servicios
+app.use("/servicios", serviceRoutes);
+app.use("/admin/servicios",serviceAdmRoutes);
 
 /* ======================
    SERVER
@@ -69,13 +75,13 @@ async function start() {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
 
-    console.log("✅ PostgreSQL conectado");
+    console.log(" PostgreSQL conectado");
 
     app.listen(PORT, () => {
-      console.log(`🚀 API en http://localhost:${PORT}`);
+      console.log(` API en http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Error al iniciar el servidor:", error);
+    console.error(" Error al iniciar el servidor:", error);
   }
 }
 

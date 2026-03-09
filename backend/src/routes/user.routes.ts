@@ -25,7 +25,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
     // rol cliente fijo
     const rolCliente = await Role.findOne({
-      where: { name: "EMPLOYEE" },
+      where: { name: "CLIENT" },
     });
 
     if (!rolCliente) {

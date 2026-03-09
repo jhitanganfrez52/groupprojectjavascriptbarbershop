@@ -1,8 +1,8 @@
 //src/pages/Users/HomeAdmin.tsx
 import { useState } from "react";
 import axios from "axios";
-
-const API_URL = "http://localhost:3000/usuarios";
+import ServicesAdmin from "../../components/ServicesAdmin";
+const API_URL = "http://localhost:3000/admin/usuarios";
 
 function HomeAdmin() {
   const [firstName, setFirstName] = useState("");
@@ -18,22 +18,23 @@ function HomeAdmin() {
     try {
       const token = localStorage.getItem("token");
 
+      
       const response = await axios.post(
-        API_URL,
-        {
-          firstName,
-          lastName,
-          ci,
-          phone,
-          password,
-          roleId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  API_URL,
+  {
+    firstName,
+    lastName,
+    ci,
+    phone,
+    password,
+    roleId: Number(roleId),
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       alert("Usuario creado correctamente");
 
@@ -117,6 +118,7 @@ function HomeAdmin() {
           Crear Usuario
         </button>
       </form>
+      <ServicesAdmin></ServicesAdmin>
     </div>
   );
 }
