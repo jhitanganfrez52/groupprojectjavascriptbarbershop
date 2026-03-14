@@ -1,9 +1,5 @@
+import RegisterPage from "./pages/RegisterPage";
 function App() {
-  return (
-    <>
-      <h1> deben tener instalado react ya noms apra avanzar chicos!!! estamos en poco tiempo</h1>
-    </>
-  )
+  return <RegisterPage />;
 }
-
-export default App
+export default App;
