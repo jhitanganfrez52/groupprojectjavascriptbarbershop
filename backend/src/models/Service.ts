@@ -44,8 +44,11 @@ export class Service extends Model {
   @Column(DataType.TEXT)
   description!: string;
 
-  // relación muchos a muchos con empleados
-
-  @BelongsToMany(() => User, () => ServiceEmployee)
-  employees!: User[];
+@BelongsToMany(
+  () => User,
+  () => ServiceEmployee,
+  "serviceId",   // foreignKey en tabla intermedia
+  "employeeId"   // otherKey
+)
+users!: User[];
 }

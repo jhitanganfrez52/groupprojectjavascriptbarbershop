@@ -11,6 +11,7 @@ import {
 } from "sequelize-typescript";
 
 import { Role } from "./Role.js";
+
 import { BelongsToMany } from "sequelize-typescript";
 import { Service } from "./Service.js";
 import { ServiceEmployee } from "./ServiceEmployee.js";
@@ -70,7 +71,11 @@ export class User extends Model {
 
   @BelongsTo(() => Role)
   role!: Role;
-
-  @BelongsToMany(() => Service, () => ServiceEmployee)
+@BelongsToMany(
+  () => Service,
+  () => ServiceEmployee,
+  "employeeId",
+  "serviceId"
+)
 services!: Service[];
 }

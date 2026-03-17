@@ -66,3 +66,7 @@ npm install -D @types/cors
 para agregar decoradores en las tabals sequelize.
 npm install sequelize sequelize-typescript mysql2
 npm install -D @types/node
+
+instalación JWT
+npm install jsonwebtoken
+npm install -D @types/jsonwebtoken
