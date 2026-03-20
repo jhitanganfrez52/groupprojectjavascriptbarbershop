@@ -22,6 +22,7 @@ import empresaRoutes from "./routes/company.routes.js";
 import availableRoutes from "./routes/availability.routes.js"
 import serviceRoutes from "./routes/services/serviceEmployee.routes.js";
 import serviceAdmRoutes from "./routes/services/serviceAd.routes.js";
+import availability from"./routes/availability.routes.js";
 dotenv.config();
 
 const app = express();
@@ -63,6 +64,7 @@ app.use("/disponibilidad",availableRoutes)
 //servicios
 app.use("/servicios", serviceRoutes);
 app.use("/admin/servicios",serviceAdmRoutes);
+app.use("/disponibilidades",availability);
 
 /* ======================
    SERVER

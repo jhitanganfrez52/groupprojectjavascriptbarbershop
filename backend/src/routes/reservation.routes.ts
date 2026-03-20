@@ -40,25 +40,25 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const {
-      cliente_id,
-      disponibilidad_id,
-      horaInicio,
-      horaFin,
-      detalle,
-      servicios, // array de IDs
-    } = req.body;
+  clientId,
+  availabilityId,
+  startTime,
+  endTime,
+  detail,
+  services
+} = req.body;
 
-    const reserva = await Reservation.create({
-      cliente_id,
-      disponibilidad_id,
-      horaInicio,
-      horaFin,
-      detalle,
-    });
+   const reserva = await Reservation.create({
+  clientId,
+  availabilityId,
+  startTime,
+  endTime,
+  detail,
+});
 
     // asociar servicios
-    if (servicios && servicios.length > 0) {
-      await reserva.$set("services", servicios);
+    if (services && services.length > 0) {
+      await reserva.$set("services", services);
     }
 
     res.status(201).json(reserva);

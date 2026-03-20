@@ -20,48 +20,48 @@ function Login({ goToHome, goToAdmin,
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-     const response = await axios.post(`${API_URL}/usuarios/login`, {
-  ci,
-  password,
-});
+  try {
+    const response = await axios.post(`${API_URL}/usuarios/login`, {
+      ci,
+      password,
+    });
 
-const token = response.data.token;
-const role = response.data.usuario.role;
+    const token = response.data.token;
+    const usuario = response.data.usuario; // aquí está el ID, nombre, rol
+    const role = usuario.role;
 
-      // guardar token
-localStorage.setItem("token", token);
+    // Guardar en localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(usuario)); // guardar usuario completo
 
-alert("Login correcto");
+    alert("Login correcto");
 
-// redirección por rol
-if (role === 1) {
-  goToAdmin();
-} else if (role === 2) {
-  goToEmployee();
-} else if (role === 3) {
-  goToClient();
-} else if (role === 4) {
-  goToCashier();
-}
-      // aquí luego puedes guardar usuario en estado o localStorage
-    } catch (err: any) {
-      console.error("ERROR LOGIN:", err.response?.data);
-
-      if (err.response) {
-        // mensajes que manda tu backend
-        setError(err.response.data.error);
-      } else {
-        setError("No se pudo conectar con el servidor");
-      }
-    } finally {
-      setLoading(false);
+    // redirección por rol
+    if (role === 1) {
+      goToAdmin();
+    } else if (role === 2) {
+      goToEmployee();
+    } else if (role === 3) {
+      goToClient();
+    } else if (role === 4) {
+      goToCashier();
     }
-  };
+  } catch (err: any) {
+    console.error("ERROR LOGIN:", err.response?.data);
+
+    if (err.response) {
+      setError(err.response.data.error);
+    } else {
+      setError("No se pudo conectar con el servidor");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div>

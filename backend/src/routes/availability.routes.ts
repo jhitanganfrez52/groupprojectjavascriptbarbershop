@@ -9,17 +9,18 @@ const router = Router();
 ===================== */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { empleado_id, fecha, horaInicio, horaFin } = req.body;
+    const { employeeId, date, startTime, endTime } = req.body;
 
     const disponibilidad = await Availability.create({
-      empleado_id,
-      fecha,
-      horaInicio,
-      horaFin,
+      employeeId,
+      date,
+      startTime,
+      endTime,
     });
 
     res.status(201).json(disponibilidad);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: "Error al crear disponibilidad" });
   }
 });

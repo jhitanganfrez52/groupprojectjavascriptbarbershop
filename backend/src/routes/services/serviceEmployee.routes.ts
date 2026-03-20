@@ -46,4 +46,43 @@ router.delete("/", async (req, res) => {
   res.json({ message: "Servicio removido del empleado" });
 });
 
+router.get("/service/:id/users", async (req, res) => {
+  try {
+    const service = await Service.findByPk(req.params.id, {
+      include: {
+        model: User,
+        as: "users", 
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({ error: "Servicio no encontrado" });
+    }
+
+    res.json(service);
+  } catch (error) {
+    res.status(400).json({ error: "Error al obtener empleados" });
+  }
+});
+
+router.get("/:id/empleados", async (req, res) => {
+  try {
+    const service = await Service.findByPk(req.params.id, {
+      include: {
+        model: User,
+        as: "users", 
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({ error: "Servicio no encontrado" });
+    }
+
+    res.json(service.users);
+
+  } catch (error) {
+    res.status(400).json({ error: "Error al obtener empleados" });
+  }
+});
+
 export default router;
