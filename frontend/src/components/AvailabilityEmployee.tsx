@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AvailabilityEmployee() {
+const storedUser = localStorage.getItem("user");
+const user = storedUser ? JSON.parse(storedUser) : null;
 
-  const employeeId = 1;
+const employeeId = user?.id; // o idUser según tu backend
 
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");

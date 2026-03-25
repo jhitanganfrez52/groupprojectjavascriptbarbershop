@@ -22,7 +22,9 @@ import empresaRoutes from "./routes/company.routes.js";
 import availableRoutes from "./routes/availability.routes.js"
 import serviceRoutes from "./routes/services/serviceEmployee.routes.js";
 import serviceAdmRoutes from "./routes/services/serviceAd.routes.js";
-import availability from"./routes/availability.routes.js";
+
+
+import reservation from"./routes/reservation.routes.js"
 dotenv.config();
 
 const app = express();
@@ -41,10 +43,8 @@ app.use(
 
 // Body JSON
 app.use(express.json());
-
 // Archivos estáticos
 app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
-
 /* ======================
    RUTAS
 ====================== */
@@ -57,14 +57,13 @@ app.use("/admin/usuarios", usuarioAdRoutes);
 
 // roles
 app.use("/roles", roleRoutes);
-
 // empresas
 app.use("/empresas", empresaRoutes);
-app.use("/disponibilidad",availableRoutes)
+app.use("/disponibilidades",availableRoutes)
 //servicios
 app.use("/servicios", serviceRoutes);
 app.use("/admin/servicios",serviceAdmRoutes);
-app.use("/disponibilidades",availability);
+app.use("/reservas",reservation);
 
 /* ======================
    SERVER

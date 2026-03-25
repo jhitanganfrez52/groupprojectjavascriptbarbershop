@@ -1,8 +1,7 @@
 import { Router, Request, Response } from "express";
 import { Availability } from "../models/Availability.js";
-
+import { Reservation } from "../models/Reservation.js";
 const router = Router();
-
 /* =====================
    POST /disponibilidades
    Crear disponibilidad (empleado)
@@ -47,7 +46,7 @@ router.get("/empleado/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const disponibilidades = await Availability.findAll({
-      where: { empleado_id: id },
+      where: { employeeId: id },
     });
 
     res.json(disponibilidades);
@@ -105,4 +104,67 @@ router.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
+
+//intervalo de horas disponibles para la cita
+router.get("/horas/:employeeId/:date", async (req, res) => {
+  try {
+    const { employeeId, date } = req.params;
+
+    // 1. buscar disponibilidad
+    const disponibilidad = await Availability.findOne({
+      where: { employeeId, date },
+    });
+
+    if (!disponibilidad) {
+  return res.json({
+    slots: [],
+    availabilityId: null,
+  });
+}
+
+    // 2. generar slots de 30 min
+    const slots: string[] = [];
+
+    let [h, m] = disponibilidad.startTime.split(":").map(Number);
+    const [endH, endM] = disponibilidad.endTime.split(":").map(Number);
+
+    while (h < endH || (h === endH && m < endM)) {
+      slots.push(
+        `${h.toString().padStart(2, "0")}:${m
+          .toString()
+          .padStart(2, "0")}:00`
+      );
+
+      m += 30;
+      if (m >= 60) {
+        h++;
+        m = 0;
+      }
+    }
+
+    // 3. traer reservas
+    const reservas = await Reservation.findAll({
+      where: {
+        availabilityId: disponibilidad.idAvailability,
+        date,
+      },
+    });
+
+    // 4. filtrar ocupados (opcional simple)
+    const disponibles = slots.filter((slot) => {
+      return !reservas.some((r: Reservation) =>
+        slot >= r.startTime && slot < r.endTime
+      );
+    });
+
+    res.json({
+  slots: disponibles,
+  availabilityId: disponibilidad.idAvailability,
+});
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener horas" });
+  }
+});
 export default router;

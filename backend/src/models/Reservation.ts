@@ -27,6 +27,9 @@ export class Reservation extends Model {
   @Column(DataType.INTEGER)
   idReservation!: number;
 
+  @Column(DataType.DATEONLY)
+  date!: string;
+
   @Column(DataType.TIME)
   startTime!: string;
 

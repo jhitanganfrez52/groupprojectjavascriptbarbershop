@@ -3,7 +3,6 @@ import { Reservation } from "../models/Reservation.js";
 import { User } from "../models/User.js";
 import { Service } from "../models/Service.js";
 import { Availability } from "../models/Availability.js";
-
 const router = Router();
 
 /* =====================
@@ -15,7 +14,6 @@ router.get("/", async (_req: Request, res: Response) => {
   });
   res.json(reservas);
 });
-
 /* =====================
    GET /reservas/:id
 ===================== */
@@ -40,33 +38,73 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const {
-  clientId,
-  availabilityId,
-  startTime,
-  endTime,
-  detail,
-  services
-} = req.body;
+      clientId,
+      availabilityId,
+      date,
+      startTime,
+      endTime,
+      detail,
+      services
+    } = req.body;
 
-   const reserva = await Reservation.create({
-  clientId,
-  availabilityId,
-  startTime,
-  endTime,
-  detail,
-});
+    // 1. validar disponibilidad
+    const availability = await Availability.findByPk(availabilityId);
 
-    // asociar servicios
+    if (!availability) {
+      return res.status(404).json({ error: "Disponibilidad no encontrada" });
+    }
+
+    // 2. validar rango dentro del horario del empleado
+    if (
+      startTime < availability.startTime ||
+      endTime > availability.endTime
+    ) {
+      return res.status(400).json({
+        error: "Fuera del horario del empleado",
+      });
+    }
+
+    // 3. traer reservas existentes en esa fecha
+    const reservas = await Reservation.findAll({
+      where: {
+        availabilityId,
+        date
+      },
+    });
+
+    // 4. validar cruce de horarios
+    const hayCruce = reservas.some(r =>
+      startTime < r.endTime && endTime > r.startTime
+    );
+
+    if (hayCruce) {
+      return res.status(400).json({
+        error: "La hora ya está ocupada",
+      });
+    }
+
+    // 5. crear reserva
+    const reserva = await Reservation.create({
+      clientId,
+      availabilityId,
+      date,
+      startTime,
+      endTime,
+      detail,
+    });
+
+    // 6. asociar servicios
     if (services && services.length > 0) {
       await reserva.$set("services", services);
     }
 
     res.status(201).json(reserva);
+
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: "Error al crear reserva" });
   }
 });
-
 /* =====================
    PUT /reservas/:id
 ===================== */
