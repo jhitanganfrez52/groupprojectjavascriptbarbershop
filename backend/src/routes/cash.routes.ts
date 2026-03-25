@@ -6,9 +6,21 @@ const router = Router();
 /* =====================
    GET /caja (listar)
 ===================== */
-router.get("/", async (_req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
-    const registros = await CashRegister.findAll();
+    const { date } = req.query;
+
+    const where: any = {};
+
+    if (date) {
+      where.date = date;
+    }
+
+    const registros = await CashRegister.findAll({
+      where,
+      include: ["reservation", "service"],
+    });
+
     res.json(registros);
   } catch (error) {
     res.status(500).json({ error: "Error al listar caja" });
@@ -34,18 +46,88 @@ router.get("/:id", async (req: Request, res: Response) => {
   res.json(registro);
 });
 
+//resumen
+router.get("/summary", async (_req: Request, res: Response) => {
+  try {
+    const ingresos = await CashRegister.sum("amount", {
+      where: { type: "income" },
+    });
+
+    const egresos = await CashRegister.sum("amount", {
+      where: { type: "expense" },
+    });
+
+    res.json({
+      ingresos: ingresos || 0,
+      egresos: egresos || 0,
+      balance: (ingresos || 0) - (egresos || 0),
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener resumen" });
+  }
+});
+
 /* =====================
    POST /caja (crear)
 ===================== */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const nuevo = await CashRegister.create(req.body);
+    const { type, concept, amount, method, date, reservationId, serviceId } = req.body;
+
+    if (!type || !amount || !method || !date) {
+      return res.status(400).json({ msg: "Campos obligatorios faltantes" });
+    }
+
+    if (type === "income" && !reservationId && !serviceId) {
+      return res.status(400).json({
+        msg: "Un ingreso debe tener reservationId o serviceId",
+      });
+    }
+
+    const nuevo = await CashRegister.create({
+      type,
+      concept,
+      amount,
+      method,
+      date,
+      reservationId,
+      serviceId,
+    });
+
     res.status(201).json(nuevo);
   } catch (error) {
     res.status(400).json({ error: "Error al crear registro" });
   }
 });
+//registronormal
+router.post("/manual", async (req: Request, res: Response) => {
+  try {
+    const { type, concept, amount, method, date } = req.body;
 
+    // Validaciones básicas
+    if (!type || !concept || !amount || !method || !date) {
+      return res.status(400).json({
+        msg: "Todos los campos son obligatorios",
+      });
+    }
+
+    const nuevo = await CashRegister.create({
+      type,
+      concept,
+      amount,
+      method,
+      date,
+      reservationId: null,
+      serviceId: null,
+    });
+
+    res.status(201).json(nuevo);
+  } catch (error) {
+    res.status(400).json({
+      error: "Error al crear registro manual",
+    });
+  }
+});
 /* =====================
    PUT /caja/:id (editar)
 ===================== */

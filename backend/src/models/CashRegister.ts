@@ -1,6 +1,8 @@
 // src/models/CashRegister.ts
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from "sequelize-typescript";
-
+import { ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Reservation } from "./Reservation.js";
+import { Service } from "./Service.js";
 @Table({
   tableName: "cash_register",
   timestamps: false,
@@ -41,4 +43,32 @@ export class CashRegister extends Model {
     allowNull: false,
   })
   date!: Date;
+  /* =========================
+   RELACION CON RESERVA
+========================= */
+
+@ForeignKey(() => Reservation)
+@Column({
+  type: DataType.INTEGER,
+  allowNull: true,
+})
+reservationId?: number;
+
+@BelongsTo(() => Reservation)
+reservation?: Reservation;
+
+/* =========================
+   RELACION CON SERVICIO (para pagos sin reserva)
+========================= */
+
+@ForeignKey(() => Service)
+@Column({
+  type: DataType.INTEGER,
+  allowNull: true,
+})
+serviceId?: number;
+
+@BelongsTo(() => Service)
+service?: Service;
+
 }

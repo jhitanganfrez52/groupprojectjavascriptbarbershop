@@ -22,7 +22,7 @@ import empresaRoutes from "./routes/company.routes.js";
 import availableRoutes from "./routes/availability.routes.js"
 import serviceRoutes from "./routes/services/serviceEmployee.routes.js";
 import serviceAdmRoutes from "./routes/services/serviceAd.routes.js";
-
+import cajaRoutes from "./routes/cash.routes.js"
 
 import reservation from"./routes/reservation.routes.js"
 dotenv.config();
@@ -64,7 +64,7 @@ app.use("/disponibilidades",availableRoutes)
 app.use("/servicios", serviceRoutes);
 app.use("/admin/servicios",serviceAdmRoutes);
 app.use("/reservas",reservation);
-
+app.use("/caja",cajaRoutes)
 /* ======================
    SERVER
 ====================== */

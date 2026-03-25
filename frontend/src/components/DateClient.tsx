@@ -50,7 +50,7 @@ const availability = res.data.availabilityId;
 setHours(slots);
 setAvailabilityId(availability);
 
-// 👇 GUARDA TAMBIÉN EN UNA VARIABLE LOCAL SI QUIERES DEBUG
+//  GUARDA TAMBIÉN EN UNA VARIABLE LOCAL SI QUIERES DEBUG
 console.log("SET availabilityId:", availability);
   } catch (error) {
     console.error(error);
@@ -61,7 +61,7 @@ console.log("SET availabilityId:", availability);
   return (
     <div>
 
-      {/* 📅 FECHA */}
+      {/*  FECHA */}
       <h3>Fecha</h3>
       <input
         type="date"
@@ -69,7 +69,7 @@ console.log("SET availabilityId:", availability);
         onChange={(e) => loadHours(e.target.value)}
       />
 
- {/* 🔥 PICKER DE HORAS */}
+ {/*  PICKER DE HORAS */}
       <h3>Horas disponibles</h3>
 
       <select
@@ -91,7 +91,7 @@ console.log("SET availabilityId:", availability);
         ))}
       </select>
 
-      {/* ⏱ DURACIÓN */}
+      {/*  DURACIÓN */}
       <h3>Duración (minutos)</h3>
       <input
         type="number"
