@@ -102,10 +102,10 @@ router.post("/", async (req: Request, res: Response) => {
 //registronormal
 router.post("/manual", async (req: Request, res: Response) => {
   try {
-    const { type, concept, amount, method, date } = req.body;
+    const { type, concept, amount, method} = req.body;
 
     // Validaciones básicas
-    if (!type || !concept || !amount || !method || !date) {
+    if (!type || !concept || !amount || !method ) {
       return res.status(400).json({
         msg: "Todos los campos son obligatorios",
       });
@@ -116,7 +116,7 @@ router.post("/manual", async (req: Request, res: Response) => {
       concept,
       amount,
       method,
-      date,
+      date: new Date(),
       reservationId: null,
       serviceId: null,
     });

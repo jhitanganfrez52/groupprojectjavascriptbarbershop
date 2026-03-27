@@ -1,0 +1,4 @@
+npm install antd @ant-design/icons
+
+tipado de datos y organización Zod
+npm install zod

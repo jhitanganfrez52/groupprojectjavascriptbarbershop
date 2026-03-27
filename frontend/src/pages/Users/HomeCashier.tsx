@@ -1,158 +1,98 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+// src/pages/Users/HomeCashier.tsx
+import { useState } from "react";
+import 'antd/dist/reset.css';
+import { Table, Modal, Form, Input, InputNumber, Select, Button, Statistic, Row, Col, Card } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
-interface CashRegister {
-  idCashRegister?: number;
-  type: "income" | "expense";
-  concept: string;
-  amount: number;
-  method: "cash" | "qr" | "card";
-  date: string;
-}
+import { useCashier } from '../../hooks/useCashier';
+import { CashRegister } from '../../types/cashRegisterSchema';
 
 function HomeCashier() {
-  const [data, setData] = useState<CashRegister[]>([]);
-  const [summary, setSummary] = useState({
-    ingresos: 0,
-    egresos: 0,
-    balance: 0,
-  });
+  const { data, loading, addMovement } = useCashier();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
 
-  const [form, setForm] = useState<CashRegister>({
-    type: "income",
-    concept: "",
-    amount: 0,
-    method: "cash",
-    date: "",
-  });
+  const columns = [
+    { title: 'Tipo', dataIndex: 'type', key: 'type' },
+    { title: 'Concepto', dataIndex: 'concept', key: 'concept' },
+    { title: 'Monto', dataIndex: 'amount', key: 'amount' },
+    { title: 'Método', dataIndex: 'method', key: 'method' },
+  ];
 
-  /* =====================
-     OBTENER REGISTROS
-  ===================== */
-  const fetchData = async () => {
+  // Calcular resumen dinámico
+  const ingresos = data.filter(d => d.type === 'income').reduce((sum, d) => sum + d.amount, 0);
+  const egresos = data.filter(d => d.type === 'expense').reduce((sum, d) => sum + d.amount, 0);
+  const balance = ingresos - egresos;
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleSubmit = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/caja");
-      setData(res.data);
+      const values = await form.validateFields();
+      await addMovement(values);
+      form.resetFields();
+      closeModal();
     } catch (error) {
-      console.error(error);
-    }
-  };
-
-  /* =====================
-     OBTENER RESUMEN
-  ===================== */
-  const fetchSummary = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/caja/summary");
-      setSummary(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    fetchSummary();
-  }, []);
-
-  /* =====================
-     MANEJAR FORM
-  ===================== */
-  const handleChange = (e: any) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  /* =====================
-     CREAR REGISTRO
-  ===================== */
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-
-    try {
-      await axios.post("http://localhost:3000/caja/manual", form);
-      fetchData();
-      fetchSummary();
-
-      setForm({
-        type: "income",
-        concept: "",
-        amount: 0,
-        method: "cash",
-        date: "",
-      });
-    } catch (error) {
-      console.error(error);
+      console.error('Error al registrar movimiento:', error);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2> Caja</h2>
+    <div style={{ padding: 24 }}>
+      {/* Resumen */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={8}><Card><Statistic title="Ingresos" value={ingresos} /></Card></Col>
+        <Col span={8}><Card><Statistic title="Egresos" value={egresos} /></Card></Col>
+        <Col span={8}><Card><Statistic title="Balance" value={balance} /></Card></Col>
+      </Row>
 
-      {/* =====================
-          RESUMEN
-      ===================== */}
-      <div>
-        <p>Ingresos: {summary.ingresos}</p>
-        <p>Egresos: {summary.egresos}</p>
-        <p>Balance: {summary.balance}</p>
-      </div>
+      {/* Botón Nuevo Movimiento */}
+      <Button type="primary" icon={<PlusOutlined />} onClick={openModal} style={{ marginBottom: 16 }}>
+        Nuevo Movimiento
+      </Button>
 
-      {/* =====================
-          FORMULARIO
-      ===================== */}
-      <form onSubmit={handleSubmit}>
-        <select name="type" value={form.type} onChange={handleChange}>
-          <option value="income">Ingreso</option>
-          <option value="expense">Egreso</option>
-        </select>
+      {/* Tabla de movimientos */}
+      <Table<CashRegister>
+        dataSource={data}
+        columns={columns}
+        rowKey="idCashRegister"
+        loading={loading}
+      />
 
-        <input
-          type="text"
-          name="concept"
-          placeholder="Concepto"
-          value={form.concept}
-          onChange={handleChange}
-        />
+      {/* Modal para agregar */}
+      <Modal
+        title="Registrar Movimiento"
+        open={isModalOpen}
+        onCancel={closeModal}
+        onOk={handleSubmit}
+        okText="Registrar"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="type" label="Tipo" initialValue="income" rules={[{ required: true }]}>
+            <Select>
+              <Select.Option value="income">Ingreso</Select.Option>
+              <Select.Option value="expense">Egreso</Select.Option>
+            </Select>
+          </Form.Item>
 
-        <input
-          type="number"
-          name="amount"
-          placeholder="Monto"
-          value={form.amount}
-          onChange={handleChange}
-        />
+          <Form.Item name="concept" label="Concepto" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
 
-        <select name="method" value={form.method} onChange={handleChange}>
-          <option value="cash">Efectivo</option>
-          <option value="qr">QR</option>
-          <option value="card">Tarjeta</option>
-        </select>
+          <Form.Item name="amount" label="Monto" rules={[{ required: true, type: 'number', min: 0 }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
 
-        <input
-          type="date"
-          name="date"
-          value={form.date}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Registrar</button>
-      </form>
-
-      {/* =====================
-          LISTA
-      ===================== */}
-      <h3>Movimientos</h3>
-      <ul>
-        {data.map((item) => (
-          <li key={item.idCashRegister}>
-            {item.type} - {item.concept} - Bs. {item.amount} - {item.method}
-          </li>
-        ))}
-      </ul>
+          <Form.Item name="method" label="Método" initialValue="cash" rules={[{ required: true }]}>
+            <Select>
+              <Select.Option value="cash">Efectivo</Select.Option>
+              <Select.Option value="qr">QR</Select.Option>
+              <Select.Option value="card">Tarjeta</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }
