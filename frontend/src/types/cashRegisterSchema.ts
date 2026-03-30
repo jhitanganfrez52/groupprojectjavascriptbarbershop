@@ -8,6 +8,8 @@ export const cashRegisterSchema = z.object({
   method: z.enum(["cash", "qr", "card"]),
   reservationId: z.number().optional(),
   serviceId: z.number().optional(),
+
+  date: z.union([z.string(), z.date()]).optional(),
 });
 
 export type CashRegister = z.infer<typeof cashRegisterSchema>; // exporta el tipo

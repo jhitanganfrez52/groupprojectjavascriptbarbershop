@@ -40,7 +40,7 @@ const [availabilityId, setAvailabilityId] = useState<number | null>(null);
     try {
       await axios.post("http://localhost:3000/reservas", {
         clientId,
-        availabilityId, // ✅ CORRECTO
+        availabilityId, // 
         date,
         startTime,
         endTime,
@@ -48,9 +48,9 @@ const [availabilityId, setAvailabilityId] = useState<number | null>(null);
         detail: "Reserva desde cliente",
       });
 
-      alert("Reserva creada 🔥");
+      alert("Reserva creada ");
 
-      // 🔄 limpiar formulario (opcional)
+      //  limpiar formulario (opcional)
       setStartTime("");
       setEndTime("");
     } catch (error: any) {
@@ -91,7 +91,7 @@ const [availabilityId, setAvailabilityId] = useState<number | null>(null);
         }}
       />
 
-      {/* ✅ BOTÓN */}
+      {/*  BOTÓN */}
       <button
         onClick={tryReserve}
         

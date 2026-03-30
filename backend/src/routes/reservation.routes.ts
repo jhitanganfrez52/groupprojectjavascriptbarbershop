@@ -4,14 +4,22 @@ import { User } from "../models/User.js";
 import { Service } from "../models/Service.js";
 import { Availability } from "../models/Availability.js";
 const router = Router();
-
+const validStatus = ["pending", "confirmed", "completed", "cancelled"];
 /* =====================
    GET /reservas
 ===================== */
 router.get("/", async (_req: Request, res: Response) => {
   const reservas = await Reservation.findAll({
-    include: [User, Availability, Service],
+    include: [
+      User,
+      Availability,
+      {
+        model: Service,
+        through: { attributes: [] }, //  CLAVE
+      },
+    ],
   });
+
   res.json(reservas);
 });
 /* =====================
@@ -22,7 +30,14 @@ router.get("/:id", async (req: Request, res: Response) => {
   if (isNaN(id)) return res.status(400).json({ msg: "ID inválido" });
 
   const reserva = await Reservation.findByPk(id, {
-    include: [User, Availability, Service],
+    include: [
+      User,
+      Availability,
+      {
+        model: Service,
+        through: { attributes: [] }, //  CLAVE
+      },
+    ],
   });
 
   if (!reserva) {
@@ -32,20 +47,20 @@ router.get("/:id", async (req: Request, res: Response) => {
   res.json(reserva);
 });
 
-/* =====================
-   POST /reservas
-===================== */
 router.post("/", async (req: Request, res: Response) => {
   try {
     const {
       clientId,
       availabilityId,
-      date,
       startTime,
       endTime,
       detail,
-      services
+      services,
+      date: incomingDate
     } = req.body;
+
+    //  fecha automática si no viene
+    const date = req.body.date || new Date().toISOString().split("T")[0];
 
     // 1. validar disponibilidad
     const availability = await Availability.findByPk(availabilityId);
@@ -54,7 +69,7 @@ router.post("/", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Disponibilidad no encontrada" });
     }
 
-    // 2. validar rango dentro del horario del empleado
+    // 2. validar rango dentro del horario
     if (
       startTime < availability.startTime ||
       endTime > availability.endTime
@@ -64,7 +79,7 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    // 3. traer reservas existentes en esa fecha
+    // 3. reservas existentes en esa fecha
     const reservas = await Reservation.findAll({
       where: {
         availabilityId,
@@ -72,7 +87,7 @@ router.post("/", async (req: Request, res: Response) => {
       },
     });
 
-    // 4. validar cruce de horarios
+    // 4. validar cruce
     const hayCruce = reservas.some(r =>
       startTime < r.endTime && endTime > r.startTime
     );
@@ -93,7 +108,7 @@ router.post("/", async (req: Request, res: Response) => {
       detail,
     });
 
-    // 6. asociar servicios
+    // 6. servicios
     if (services && services.length > 0) {
       await reserva.$set("services", services);
     }
@@ -109,23 +124,52 @@ router.post("/", async (req: Request, res: Response) => {
    PUT /reservas/:id
 ===================== */
 router.put("/:id", async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ msg: "ID inválido" });
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ msg: "ID inválido" });
+    }
 
-  const reserva = await Reservation.findByPk(id);
-  if (!reserva) {
-    return res.status(404).json({ msg: "Reserva no encontrada" });
+    const reserva = await Reservation.findByPk(id);
+    if (!reserva) {
+      return res.status(404).json({ msg: "Reserva no encontrada" });
+    }
+
+    const { status, services, ...data } = req.body;
+
+    // ✅ validar status si viene
+    if (status) {
+      if (!validStatus.includes(status)) {
+        return res.status(400).json({
+          error: "Estado inválido",
+        });
+      }
+
+      // 👉 opcional: lógica de transición
+      // ejemplo: no volver de completed a pending
+      if (reserva.status === "completed" && status !== "completed") {
+        return res.status(400).json({
+          error: "No se puede modificar una reserva completada",
+        });
+      }
+
+      reserva.status = status;
+    }
+
+    // ✅ actualizar otros datos si vienen
+    await reserva.update(data);
+
+    // ✅ actualizar servicios
+    if (services) {
+      await reserva.$set("services", services);
+    }
+
+    res.json(reserva);
+
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Error al actualizar reserva" });
   }
-
-  const { servicios, ...data } = req.body;
-
-  await reserva.update(data);
-
-  if (servicios) {
-   await reserva.$set("services", servicios);
-  }
-
-  res.json(reserva);
 });
 
 /* =====================

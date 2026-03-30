@@ -7,6 +7,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useCashier } from '../../hooks/useCashier';
 import { CashRegister } from '../../types/cashRegisterSchema';
 
+import ReservationStatus from "../../components/ReservationStatus";
 function HomeCashier() {
   const { data, loading, addMovement } = useCashier();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +40,8 @@ function HomeCashier() {
   };
 
   return (
+    <>
+    <ReservationStatus></ReservationStatus>
     <div style={{ padding: 24 }}>
       {/* Resumen */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
@@ -94,6 +97,7 @@ function HomeCashier() {
         </Form>
       </Modal>
     </div>
+    </>
   );
 }
 

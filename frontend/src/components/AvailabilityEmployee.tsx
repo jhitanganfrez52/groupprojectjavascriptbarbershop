@@ -20,7 +20,7 @@ const employeeId = user?.id; // o idUser según tu backend
       .catch(console.error);
   }, []);
 
-  // 🔹 guardar disponibilidad
+  //  guardar disponibilidad
   const handleSave = async () => {
     try {
 

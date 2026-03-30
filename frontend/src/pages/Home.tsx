@@ -1,20 +1,17 @@
 // src/pages/Home.tsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
-interface HomeProps {
-  goToLogin: () => void;
-  goToRegister: () => void;
-  goToHome:()=>void;
-}
+const Home: React.FC = () => {
+  const navigate = useNavigate();
 
-const Home: React.FC<HomeProps> = ({ goToLogin, goToRegister,goToHome }) => {
   return (
     <div>
       <Navbar
-        onLoginClick={goToLogin}
-        onRegisterClick={goToRegister}
-        onHomeClick={goToHome}
+        onLoginClick={() => navigate("/login")}
+        onRegisterClick={() => navigate("/register")}
+        onHomeClick={() => navigate("/")}
       />
 
       <main>

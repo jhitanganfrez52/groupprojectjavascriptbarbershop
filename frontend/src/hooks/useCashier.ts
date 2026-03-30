@@ -23,5 +23,5 @@ export const useCashier = () => {
     fetchData();
   }, []);
 
-  return { data, loading, addMovement };
+return { data, loading, addMovement, fetchData };
 };
