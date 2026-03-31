@@ -41,7 +41,7 @@ const fetchData = async () => {
     const reserva = data.find(r => r.idReservation === id);
 
     await updateReservation(id, { status });
-      await refreshCash?.(); // 🔥 ahora sí refresca correctamente
+      await refreshCash?.(); //  ahora sí refresca correctamente
     await fetchData();
   };
 

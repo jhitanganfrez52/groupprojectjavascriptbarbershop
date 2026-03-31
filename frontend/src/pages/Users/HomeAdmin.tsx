@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import ServicesAdmin from "../../components/ServicesAdmin";
+import CompanyEdit from "../../components/CompanyEdit";
 const API_URL = "http://localhost:3000/admin/usuarios";
 
 function HomeAdmin() {
@@ -56,6 +57,7 @@ function HomeAdmin() {
 
   return (
     <div>
+      <CompanyEdit></CompanyEdit>
       <h2>Panel Administrador</h2>
 
       <h3>Registrar empleado / cliente</h3>

@@ -9,3 +9,9 @@ npm install react-router-dom
 advertencias de tailwind
 ctrl+shit+p edición json
   "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+
+fecha Formato Bolivia 
+npm install dayjs
+
+descargar tabla en pdf
+npm install jspdf jspdf-autotable

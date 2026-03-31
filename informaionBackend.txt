@@ -70,3 +70,6 @@ npm install -D @types/node
 instalación JWT
 npm install jsonwebtoken
 npm install -D @types/jsonwebtoken
+
+instalación cloudinary
+npm install cloudinary multer multer-storage-cloudinary

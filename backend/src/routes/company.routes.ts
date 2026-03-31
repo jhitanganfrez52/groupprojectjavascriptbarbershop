@@ -1,134 +1,153 @@
 import { Router, Request, Response } from "express";
-import multer from "multer";
-import fs from "fs";
-import path from "path";
 import { Company } from "../models/Company.js";
-
+import { upload } from "../middleware/uploads.js";
 const router = Router();
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === "imageLogo") {
-      cb(null, "src/uploads/empresa/logo");
-    } else if (file.fieldname === "imageQr") {
-      cb(null, "src/uploads/empresa/qr");
-    }
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
-  },
-});
-
-const upload = multer({ storage });
-
 /* =========================
-   CREAR EMPRESA
+   POST CREAR EMPRESA
 ========================= */
+router.post("/", async (req: Request, res: Response) => {
+  try {
+    const {
+      companyName,
+      phoneNumber,
+      email,
+      address,
+    } = req.body;
 
-router.post(
-  "/",
-  upload.fields([
-    { name: "imageLogo", maxCount: 1 },
-    { name: "imageQr", maxCount: 1 },
-  ]),
-  async (req: Request, res: Response) => {
-    try {
-      const files = req.files as any;
-
-      const logoPath = files?.imageLogo
-        ? `/uploads/empresa/logo/${files.imageLogo[0].filename}`
-        : null;
-
-      const qrPath = files?.imageQr
-        ? `/uploads/empresa/qr/${files.imageQr[0].filename}`
-        : null;
-
-   const empresa = await Company.create({
-  companyName: req.body.companyName,
-  logoImage: logoPath,
-  qrImage: qrPath,
-});
-
-      res.status(201).json(empresa);
-    } catch (error) {
-      res.status(500).json({ error });
+    // validar mínimo
+    if (!companyName) {
+      return res.status(400).json({
+        message: "El nombre de la empresa es obligatorio",
+      });
     }
+
+    // opcional: evitar duplicado (solo 1 empresa)
+    const existing = await Company.findByPk(1);
+    if (existing) {
+      return res.status(400).json({
+        message: "La empresa ya existe",
+      });
+    }
+
+    const company = await Company.create({
+      idCompany: 1, //  fijo como usas en GET
+      companyName,
+      phoneNumber: phoneNumber || null,
+      email: email || null,
+      address: address || null,
+      logoImage: null,
+      qrImage: null,
+    });
+
+    return res.status(201).json({
+      message: "Empresa creada correctamente",
+      company,
+    });
+
+  } catch (error) {
+    console.error("Error al crear empresa:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
-);
+});
+/* =========================
+    SUBIR LOGO / QR
+========================= */
+router.post(
+  "/upload/:type",
+  upload.single("image"), // ESTO FALTABA
+  async (req: Request, res: Response) => {
+  try {
+    const file = req.file as any;
+    const type = req.params.type as string;
+
+    if (!file) {
+      return res.status(400).json({ message: "No se subió ninguna imagen" });
+    }
+
+    if (!["logo", "qr"].includes(type)) {
+      return res.status(400).json({
+        message: "Tipo inválido. Usa 'logo' o 'qr'",
+      });
+    }
+
+    const company = await Company.findByPk(1);
+
+    if (!company) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    if (type === "logo") {
+      company.logoImage = file.path;
+    } else {
+      company.qrImage = file.path;
+    }
+
+    await company.save();
+
+    return res.status(200).json({
+      message: `${type.toUpperCase()} actualizado correctamente`,
+      url: file.path,
+    });
+
+  } catch (error) {
+    console.error("Error al subir imagen:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
 
 /* =========================
-   OBTENER EMPRESA
+    GET EMPRESA
 ========================= */
-
 router.get("/", async (_req: Request, res: Response) => {
   try {
-    const empresa = await Company.findOne();
-    res.json(empresa);
+    const company = await Company.findByPk(1);
+
+    if (!company) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    return res.status(200).json(company);
+
   } catch (error) {
-    res.status(500).json({ error });
+    console.error("Error al obtener empresa:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 
 /* =========================
-   ACTUALIZAR EMPRESA
+    PUT ACTUALIZAR EMPRESA
 ========================= */
-router.put(
-  "/:id",
-  upload.fields([
-    { name: "imageLogo", maxCount: 1 },
-    { name: "imageQr", maxCount: 1 },
-  ]),
-  async (req: Request, res: Response) => {
-    try {
-      const id = Number(req.params.id);
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ message: "ID inválido" });
-      }
+router.put("/", async (req: Request, res: Response) => {
+  try {
+    const {
+      companyName,
+      phoneNumber,
+      email,
+      address
+    } = req.body;
 
-      const empresa = await Company.findByPk(id);
-      if (!empresa) return res.status(404).json({ message: "Empresa no encontrada" });
+    const company = await Company.findByPk(1);
 
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-      // Actualizar logo
-      if (files?.imageLogo) {
-        if (empresa.logoImage) {
-          const oldPath = path.join(
-            process.cwd(),
-            "src",
-            empresa.logoImage.replace("/uploads/", "uploads/")
-          );
-          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-        }
-        empresa.logoImage = `/uploads/empresa/logo/${files.imageLogo[0].filename}`;
-      }
-
-      // Actualizar QR
-      if (files?.imageQr) {
-        if (empresa.logoImage) {
-          const oldPath = path.join(
-            process.cwd(),
-            "src",
-            empresa.logoImage.replace("/uploads/", "uploads/")
-          );
-          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-        }
-        empresa.qrImage = `/uploads/empresa/qr/${files.imageQr[0].filename}`;
-      }
-
-      // Actualizar datos
-     empresa.companyName = req.body.companyName ?? empresa.companyName;
-empresa.phoneNumber = req.body.phoneNumber ?? empresa.phoneNumber;
-empresa.email = req.body.email ?? empresa.email;
-empresa.address = req.body.address ?? empresa.address;
-      await empresa.save();
-
-      res.json(empresa);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error al actualizar empresa", error });
+    if (!company) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
     }
+
+    if (companyName !== undefined) company.companyName = companyName;
+    if (phoneNumber !== undefined) company.phoneNumber = phoneNumber;
+    if (email !== undefined) company.email = email;
+    if (address !== undefined) company.address = address;
+
+    await company.save();
+
+    return res.status(200).json({
+      message: "Empresa actualizada correctamente",
+      company,
+    });
+
+  } catch (error) {
+    console.error("Error al actualizar empresa:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
-);
+});
+
 export default router;

@@ -13,18 +13,19 @@ import "./models/Service.js";
 import "./models/Reservation.js";
 import "./models/CashRegister.js";
 import "./models/Company.js";
-
+import "./config/cloudinary.js"; 
 // rutas
 import roleRoutes from "./routes/role.routes.js";
 import usuarioRoutes from "./routes/user.routes.js"; // clientes
 import usuarioAdRoutes from "./routes/userAd.routes.js"; // admin / cajero
-import empresaRoutes from "./routes/company.routes.js";
+
 import availableRoutes from "./routes/availability.routes.js"
 import serviceRoutes from "./routes/services/serviceEmployee.routes.js";
 import serviceAdmRoutes from "./routes/services/serviceAd.routes.js";
 import cajaRoutes from "./routes/cash.routes.js"
 
 import reservation from"./routes/reservation.routes.js"
+import companyRoutes from "./routes/company.routes.js";
 dotenv.config();
 
 const app = express();
@@ -44,7 +45,7 @@ app.use(
 // Body JSON
 app.use(express.json());
 // Archivos estáticos
-app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
+app.use("/empresa", companyRoutes);
 /* ======================
    RUTAS
 ====================== */
@@ -58,7 +59,6 @@ app.use("/admin/usuarios", usuarioAdRoutes);
 // roles
 app.use("/roles", roleRoutes);
 // empresas
-app.use("/empresas", empresaRoutes);
 app.use("/disponibilidades",availableRoutes)
 //servicios
 app.use("/servicios", serviceRoutes);

@@ -11,6 +11,7 @@ import { ServiceEmployee } from "./models/ServiceEmployee.js";
 import { Availability } from "./models/Availability.js";
 import { Reservation } from "./models/Reservation.js";
 import { ReservationService } from "./models/ReservationService.js";
+import { Company } from "./models/Company.js";
 dotenv.config();
 
 if (!process.env.DB_NAME) {
@@ -26,7 +27,7 @@ const sequelize = new Sequelize({
   logging: false,
 
   // aquí registras los modelos
-  models: [CashRegister, Role,User,Service,ServiceEmployee,Availability,Reservation, ReservationService],
+  models: [CashRegister, Role,User,Service,ServiceEmployee,Availability,Reservation, ReservationService,Company],
 });
 
 console.log("Instancia Sequelize creada");

@@ -41,7 +41,7 @@ const fullName = `${client?.firstName || ""} ${client?.lastName || ""}`.trim();
       }
 await createCashReservation({
   type: "income",
-  concept: `Reserva ${fullName}`, // 🔥 ahora completo
+  concept: `Reserva ${fullName}`, //  ahora completo
   amount: service.price,
   method,
   date: new Date(),
@@ -156,7 +156,7 @@ const columns: ColumnsType<Reservation> = [
   rowKey="idReservation"
   loading={loading}
   rowClassName={(record, index) => {
-    // 🔥 prioridad: estado
+    //  prioridad: estado
     if (record.status === "pending") return "reservation-pending";
     if (record.status === "confirmed") return "reservation-confirmed";
     if (record.status === "completed") return "reservation-completed";
@@ -169,7 +169,7 @@ const columns: ColumnsType<Reservation> = [
   }}
 />
 
-      {/* 🔥 MODAL LIMPIO */}
+      {/*  MODAL LIMPIO */}
       <Modal
         title="Completar Servicio"
         open={isModalOpen}
