@@ -1,0 +1,43 @@
+/* HEADER AZUL (diferente a caja para distinguir módulos) */
+.reservation-table .ant-table-thead > tr > th {
+  background-color: #1677ff;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* FILAS INTERCALADAS */
+.reservation-row-light > td {
+  background-color: #ffffff !important;
+}
+
+.reservation-row-dark > td {
+  background-color: #fafafa !important;
+}
+
+/* HOVER */
+.reservation-table .ant-table-tbody > tr:hover > td {
+  background-color: #e6f4ff !important;
+}
+
+/* CENTRADO GENERAL */
+.reservation-table .ant-table-cell {
+  text-align: center;
+}
+
+/* 🔥 COLORES POR ESTADO (fila completa suave) */
+.reservation-pending > td {
+  background-color: #fff7e6 !important;
+}
+
+.reservation-confirmed > td {
+  background-color: #e6f4ff !important;
+}
+
+.reservation-completed > td {
+  background-color: #f6ffed !important;
+}
+
+.reservation-cancelled > td {
+  background-color: #fff1f0 !important;
+}

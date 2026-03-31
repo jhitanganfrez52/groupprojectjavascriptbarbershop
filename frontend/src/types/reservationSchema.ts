@@ -8,8 +8,11 @@ export const serviceSchema = z.object({
 });
 
 export const clientSchema = z.object({
-  id: z.number().optional(),
+  idUser: z.number().optional(), //  viene así en backend
   firstName: z.string(),
+  middleName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  secondLastName: z.string().nullable().optional(),
 });
 
 export const reservationSchema = z.object({

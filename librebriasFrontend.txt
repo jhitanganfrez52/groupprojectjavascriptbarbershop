@@ -2,3 +2,10 @@ npm install antd @ant-design/icons
 
 tipado de datos y organización Zod
 npm install zod
+
+restructuracion paginas: 
+npm install react-router-dom
+
+advertencias de tailwind
+ctrl+shit+p edición json
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",

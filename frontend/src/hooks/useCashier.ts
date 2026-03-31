@@ -7,7 +7,7 @@ export const useCashier = () => {
   const [data, setData] = useState<CashRegister[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async () => {
+  const fetchCashData = async () => {
     setLoading(true);
     const res = await getCashRegister();
     setData(res);
@@ -16,12 +16,12 @@ export const useCashier = () => {
 
   const addMovement = async (movement: Partial<CashRegister>) => {
     await createCashRegister(movement);
-    fetchData();
+    await fetchCashData(); 
   };
 
   useEffect(() => {
-    fetchData();
+    fetchCashData();
   }, []);
 
-return { data, loading, addMovement, fetchData };
+  return { data, loading, addMovement, fetchCashData };
 };

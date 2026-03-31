@@ -4,9 +4,16 @@ import { useReservation } from "../hooks/useReservation";
 import { Reservation } from "../types/reservationSchema";
 import { useState } from "react";
 import { createCashReservation } from "../services/cashRegister";
+import "../styles/reservationStatus.css";
 
-function ReservationStatus() {
-  const { data, loading, updateStatus } = useReservation();
+import dayjs from "dayjs";
+import type { ColumnsType } from "antd/es/table";
+type Props = {
+  refreshCash: () => Promise<void>;
+};
+
+function ReservationStatus({ refreshCash }: Props) {
+  const { data, loading,addReservation, updateStatus } = useReservation(refreshCash);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] =
@@ -25,23 +32,22 @@ function ReservationStatus() {
       if (!selectedReservation) return;
 
       const service = selectedReservation.services?.[0];
-      const clientName =
-        selectedReservation.client?.firstName || "Cliente";
+      const client = selectedReservation.client;
 
+const fullName = `${client?.firstName || ""} ${client?.lastName || ""}`.trim();
       if (!service) {
         console.error("No hay servicio");
         return;
       }
-
-      await createCashReservation({
-        type: "income",
-        concept: `Reserva ${clientName}`, // 🔥 limpio
-        amount: service.price,            // 🔥 real
-        method,
-        date: new Date(),
-        reservationId: selectedReservation.idReservation,
-        serviceId: service.idService,
-      });
+await createCashReservation({
+  type: "income",
+  concept: `Reserva ${fullName}`, // 🔥 ahora completo
+  amount: service.price,
+  method,
+  date: new Date(),
+  reservationId: selectedReservation.idReservation,
+  serviceId: service.idService,
+});
 
       await updateStatus(
         selectedReservation.idReservation!,
@@ -55,83 +61,113 @@ function ReservationStatus() {
   };
 
   // 🔹 columnas
-  const columns = [
-    {
-      title: "Cliente",
-      dataIndex: ["client", "firstName"],
+  
+const columns: ColumnsType<Reservation> = [
+  {
+    title: "Cliente",
+   render: (_: any, record: Reservation) => {
+    const firstName = record.client?.firstName || "";
+    const lastName = record.client?.lastName || "";
+    return `${firstName} ${lastName}`.trim();
+  },
+    key: "client",
+    align: "center",
+  },
+  {
+    title: "Fecha",
+    dataIndex: "date",
+    key: "date",
+    align: "center",
+    render: (date) => (date ? dayjs(date).format("DD/MM/YYYY HH:mm") : ""),
+  },
+  {
+    title: "Hora",
+    key: "hora",
+    align: "center",
+    render: (_: any, record: Reservation) =>
+      `${record.startTime} - ${record.endTime}`,
+  },
+  {
+    title: "Servicio",
+    key: "servicio",
+    align: "center",
+    render: (_: any, record: Reservation) =>
+      record.services?.[0]?.name || "Sin servicio",
+  },
+  {
+    title: "Estado",
+    dataIndex: "status",
+    key: "status",
+    align: "center",
+    render: (status: Reservation["status"]) => {
+      const colorMap = {
+        pending: "orange",
+        confirmed: "blue",
+        completed: "green",
+        cancelled: "red",
+      };
+      return <Tag color={colorMap[status]} style={{ fontWeight: 600 }}>{status}</Tag>;
     },
-    {
-      title: "Fecha",
-      dataIndex: "date",
-    },
-    {
-      title: "Hora",
-      render: (_: any, record: Reservation) =>
-        `${record.startTime} - ${record.endTime}`,
-    },
-    {
-      title: "Servicio",
-      render: (_: any, record: Reservation) =>
-        record.services?.[0]?.name || "Sin servicio",
-    },
-    {
-      title: "Estado",
-      dataIndex: "status",
-      render: (status: Reservation["status"]) => {
-        const colorMap = {
-          pending: "orange",
-          confirmed: "blue",
-          completed: "green",
-          cancelled: "red",
-        };
-        return <Tag color={colorMap[status]}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Acciones",
-      render: (_: any, record: Reservation) => (
-        <Space>
-          <Button
-            onClick={() =>
-              handleStatusChange(record.idReservation!, "confirmed")
-            }
-          >
-            Confirmar
-          </Button>
+  },
+  {
+    title: "Acciones",
+    key: "acciones",
+    align: "center",
+    render: (_: any, record: Reservation) => (
+      <Space>
+        <Button
+          onClick={() =>
+            handleStatusChange(record.idReservation!, "confirmed")
+          }
+        >
+          Confirmar
+        </Button>
 
-          <Button
-            type="primary"
-            onClick={() => {
-              setSelectedReservation(record);
-              setIsModalOpen(true);
-            }}
-          >
-            Completar
-          </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            setSelectedReservation(record);
+            setIsModalOpen(true);
+          }}
+        >
+          Completar
+        </Button>
 
-          <Button
-            danger
-            onClick={() =>
-              handleStatusChange(record.idReservation!, "cancelled")
-            }
-          >
-            Cancelar
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+        <Button
+          danger
+          onClick={() =>
+            handleStatusChange(record.idReservation!, "cancelled")
+          }
+        >
+          Cancelar
+        </Button>
+      </Space>
+    ),
+  },
+];
 
   return (
     <div style={{ padding: 24 }}>
       <h2>Gestión de Reservas</h2>
+<Table
+  className="reservation-table"
+  dataSource={data}
+  columns={columns}
+  rowKey="idReservation"
+  loading={loading}
+  rowClassName={(record, index) => {
+    // 🔥 prioridad: estado
+    if (record.status === "pending") return "reservation-pending";
+    if (record.status === "confirmed") return "reservation-confirmed";
+    if (record.status === "completed") return "reservation-completed";
+    if (record.status === "cancelled") return "reservation-cancelled";
 
-      <Table
-        dataSource={data}
-        columns={columns}
-        rowKey="idReservation"
-        loading={loading}
-      />
+    // fallback zebra
+    return index % 2 === 0
+      ? "reservation-row-light"
+      : "reservation-row-dark";
+  }}
+/>
 
       {/* 🔥 MODAL LIMPIO */}
       <Modal

@@ -16,10 +16,14 @@ router.get("/", async (req: Request, res: Response) => {
       where.date = date;
     }
 
-    const registros = await CashRegister.findAll({
-      where,
-      include: ["reservation", "service"],
-    });
+   const registros = await CashRegister.findAll({
+  where,
+  include: ["reservation", "service"],
+  order: [
+    ["date", "ASC"], // 🔥 más reciente primero
+    ["idCashRegister", "DESC"], // fallback por si misma fecha
+  ],
+});
 
     res.json(registros);
   } catch (error) {
